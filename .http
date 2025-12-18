@@ -1,0 +1,23 @@
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### CREATE USER
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+    "firstName": "John",
+    "lastName": "Ayilara",
+    "email": "amjaystar@gmail.com",
+    "password": "Johnpank@1"
+}
+
+### LOGIN USER
+
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "amjaystar@gmail.com",
+    "password": "Johnpank@1"
+}
