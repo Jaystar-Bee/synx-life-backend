@@ -1,16 +1,22 @@
-import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
-  firstName: string;
-
-  @IsNotEmpty()
-  @IsString()
-  lastName: string;
+  name: string;
 
   @IsNotEmpty()
   @IsEmail()
+  @Matches(
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+    { message: 'Email is Invalid' },
+  )
   email: string;
 
   @IsNotEmpty()
@@ -25,4 +31,12 @@ export class CreateUserDto {
     message: 'Password must contain at least one special character',
   })
   password: string;
+
+  @IsOptional()
+  @IsString()
+  otp?: string;
+
+  @IsOptional()
+  @IsString()
+  otpExpireTime?: Date;
 }

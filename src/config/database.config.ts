@@ -14,6 +14,7 @@ export const databaseConfig = registerAs(
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    url: process.env.DB_URL ?? undefined,
     synchronize: Boolean(process.env.DB_SYNC ?? 'false'),
   }),
 );

@@ -11,13 +11,7 @@ export class User extends DateEntity {
     type: 'varchar',
     nullable: false,
   })
-  firstName: string;
-
-  @Column({
-    type: 'varchar',
-    nullable: false,
-  })
-  lastName: string;
+  name: string;
 
   @Column({
     type: 'varchar',
@@ -25,6 +19,25 @@ export class User extends DateEntity {
     unique: true,
   })
   email: string;
+
+  @Column({
+    type: 'varchar',
+    length: '4',
+  })
+  @Exclude()
+  otp: string;
+
+  @Column({
+    type: 'varchar',
+  })
+  @Exclude()
+  otpExpireTime?: Date;
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isVerified: boolean;
 
   @Column({
     type: 'varchar',

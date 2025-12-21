@@ -25,7 +25,7 @@ import { ConfigType } from './../../config/config.type';
       }),
     }),
   ],
-  providers: [AuthService, UserService, HashService],
+  providers: [AuthService, UserService, HashService, ConfigService],
   controllers: [AuthController],
 })
 export class AuthModule {}
