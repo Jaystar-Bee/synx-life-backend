@@ -22,6 +22,8 @@ import { ResponseService } from './../../common/services/response.service';
 import { ResponseI } from './../../common/interface/response';
 import { VerifyEmailDto } from '../dtos/verify-otp.dto';
 import { SendOtpDto } from '../dtos/send-otp.dto';
+import { RefreshTokenDto } from '../dtos/refresh-token.dto';
+import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
@@ -86,8 +88,45 @@ export class AuthController {
   }
 
   // refresh token
+  @Post('refresh-token')
+  public async refreshToken(
+    @Body() refreshTokenDto: RefreshTokenDto,
+  ): Promise<ResponseI<LoginResponse<User>>> {
+    const userWithTokens = await this.authService.refreshToken(refreshTokenDto);
+    return this.responseService.createResponse(
+      HttpStatus.OK,
+      'Token refreshed successfully',
+      userWithTokens,
+    );
+  }
 
   // forgot password
+  @Post('forgot-password')
+  public async forgotPassword(
+    @Body() forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<ResponseI<void>> {
+    await this.authService.forgotPassword(forgotPasswordDto);
+    return this.responseService.createResponse(
+      HttpStatus.OK,
+      'Password reset successfully',
+    );
+  }
+
+  // logout
+  @Post('logout')
+  @UseGuards(AuthGuard)
+  public async logout(
+    @Request() request: RequestType,
+  ): Promise<ResponseI<void>> {
+    const id = request.user.id;
+    await this.authService.logout(id);
+    return this.responseService.createResponse(
+      HttpStatus.OK,
+      'User logged out',
+    );
+  }
+
+  // profile
   @Get('profile')
   @UseGuards(AuthGuard)
   public async getProfile(

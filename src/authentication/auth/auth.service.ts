@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -18,6 +19,8 @@ import { ConfigType } from './../../config/config.type';
 import moment from 'moment';
 import { VerifyEmailDto } from '../dtos/verify-otp.dto';
 import { SendOtpDto } from '../dtos/send-otp.dto';
+import { RefreshTokenDto } from '../dtos/refresh-token.dto';
+import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -46,13 +49,20 @@ export class AuthService {
     }
     const isPasswordValid = await this.hashService.confirmHash(
       loginDto.password,
-      user.password,
+      user?.password as string,
     );
     if (!isPasswordValid) {
       throw new ConflictException('Email or password is incorrect');
     }
+    if (!user.isVerified) {
+      throw new ForbiddenException('Your account is not verified');
+    }
     const token = await this.generateToken(user);
     const refreshToken = await this.generateToken(user, '30d');
+    await this.userService.update({
+      ...user,
+      refreshToken: await this.hashService.hashText(refreshToken),
+    });
     return {
       user,
       tokens: {
@@ -75,7 +85,77 @@ export class AuthService {
       throw new ConflictException('The OTP has expired, please try again');
     }
 
-    return await this.userService.update({ ...user, isVerified: true });
+    if (user.otp === verifyOtpDto.otp) {
+      const res = await this.userService.update({ ...user, isVerified: true });
+      if (res?.password) {
+        delete res['password'];
+      }
+      if (res?.otp) {
+        delete res['otp'];
+      }
+      delete res.otpExpireTime;
+      return res;
+    } else {
+      throw new ForbiddenException('Invalid OTP');
+    }
+  }
+
+  public async refreshToken(
+    refreshTokenDto: RefreshTokenDto,
+  ): Promise<LoginResponse<User>> {
+    // check if refresh token is expired
+    let userId: string;
+    try {
+      const { id } = await this.jwtService.verifyAsync(
+        refreshTokenDto.refreshToken,
+      );
+      userId = id;
+    } catch (_) {
+      throw new ConflictException('Token has expired, please login again');
+    }
+    //fetch user by id or email from refreshTokenDto
+    const user = await this.userService.findOneById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // check if user is verified
+    if (!user.isVerified) {
+      throw new ForbiddenException('Your account is not verified');
+    }
+
+    // check if resfreshToken exists
+    if (!user.refreshToken) {
+      throw new ConflictException('Invalid token, please login again');
+    }
+
+    // check if refresh token matches
+    const isRefreshTokenValid = await this.hashService.confirmHash(
+      refreshTokenDto.refreshToken,
+      user?.refreshToken,
+    );
+    if (!isRefreshTokenValid) {
+      throw new ConflictException('Invalid token, please login again');
+    }
+
+    // generate new access token
+    const token = await this.generateToken(user);
+    const refreshToken = await this.generateToken(user, '30d');
+
+    // save new refresh token to user
+    await this.userService.update({
+      ...user,
+      refreshToken: await this.hashService.hashText(refreshToken),
+    });
+
+    // return user with new access token
+    return {
+      user,
+      tokens: {
+        accessToken: token,
+        refreshToken: refreshToken,
+      },
+    };
   }
 
   public async sendOtp(
@@ -83,7 +163,6 @@ export class AuthService {
     data?: User | CreateUserDto,
     isRegister?: boolean,
   ): Promise<User | void> {
-    console.log(sendOtpDto);
     const emailIsRegistered = await this.userService.findOneByEmail(
       sendOtpDto?.email,
     );
@@ -100,7 +179,9 @@ export class AuthService {
       .toDate();
     let res: User | undefined;
     if (isRegister && data) {
-      const hashedPassword = await this.hashService.hashText(data.password);
+      const hashedPassword = await this.hashService.hashText(
+        data?.password as string,
+      );
 
       res = await this.userService.create({
         ...data,
@@ -119,7 +200,6 @@ export class AuthService {
     }
 
     if (isRegister || emailIsRegistered) {
-      console.log(sendOtpDto);
       await this.mailService.sendOtpEmail(
         sendOtpDto.email,
         sendOtpDto?.name || '',
@@ -132,6 +212,40 @@ export class AuthService {
     if (res) {
       return res;
     }
+  }
+
+  public async forgotPassword(
+    forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<void> {
+    // check if user exists
+    const user = await this.userService.findOneByEmail(forgotPasswordDto.email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // verify otp
+    if (moment(user?.otpExpireTime).isBefore(moment())) {
+      throw new ConflictException('The OTP has expired, please try again');
+    }
+    if (user.otp == forgotPasswordDto.otp) {
+      const hashedPassword = await this.hashService.hashText(
+        forgotPasswordDto.newPassword,
+      );
+      await this.userService.update({
+        ...user,
+        password: hashedPassword,
+      });
+    } else {
+      throw new ForbiddenException('Invalid OTP');
+    }
+  }
+
+  public async logout(userId: string): Promise<void> {
+    const user = await this.userService.findOneById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    await this.userService.update({ ...user, refreshToken: null });
   }
 
   private async generateToken(user: User, time?: StringValue): Promise<string> {

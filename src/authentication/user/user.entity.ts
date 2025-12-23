@@ -25,7 +25,7 @@ export class User extends DateEntity {
     length: '4',
   })
   @Exclude()
-  otp: string;
+  otp?: string;
 
   @Column({
     type: 'varchar',
@@ -40,9 +40,16 @@ export class User extends DateEntity {
   isVerified: boolean;
 
   @Column({
+    type: 'text',
+    nullable: true,
+  })
+  @Exclude()
+  refreshToken: string | null;
+
+  @Column({
     type: 'varchar',
     nullable: false,
   })
   @Exclude()
-  password: string;
+  password?: string;
 }
