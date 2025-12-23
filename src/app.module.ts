@@ -15,6 +15,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { join } from 'path';
 import { mailConfig } from './config/mail.config';
 import { GlobalModule } from './global/global.module';
+import { TasksModule } from './resources/tasks/tasks.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { GlobalModule } from './global/global.module';
     }),
     AuthModule,
     GlobalModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService, HashService],

@@ -1,6 +1,7 @@
 import { DateEntity } from 'src/common/entities/date.entity';
 import { Exclude } from 'class-transformer';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Task } from './../../resources/tasks/entities/task.entity';
 
 @Entity('users')
 export class User extends DateEntity {
@@ -52,4 +53,7 @@ export class User extends DateEntity {
   })
   @Exclude()
   password?: string;
+
+  @OneToMany(() => Task, (task) => task.user)
+  tasks: Task[];
 }
