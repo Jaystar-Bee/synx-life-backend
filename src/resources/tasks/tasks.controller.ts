@@ -9,6 +9,8 @@ import {
   UseGuards,
   Request,
   HttpStatus,
+  HttpCode,
+  Query,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -18,6 +20,9 @@ import type { RequestType } from './../../common/interface/request.type';
 import { ResponseI } from './../../common/interface/response';
 import { Task } from './entities/task.entity';
 import { ResponseService } from './../../common/services/response.service';
+import { FilterTaskDto } from './dto/filter.dto';
+import { PaginationQuery } from './../../common/dtos/pagination.query';
+import { PaginationResponse } from 'src/common/interface/pagination.response';
 
 @UseGuards(AuthGuard)
 @Controller('tasks')
@@ -33,6 +38,7 @@ export class TasksController {
     @Request() req: RequestType,
   ): Promise<ResponseI<Task>> {
     const userId = req.user.id;
+    console.log('User ID from request:', userId);
     createTaskDto['userId'] = userId;
     const task = await this.tasksService.create(createTaskDto);
     return this.responseService.createResponse(
@@ -43,13 +49,40 @@ export class TasksController {
   }
 
   @Get()
-  findAll() {
-    return this.tasksService.findAll();
+  async findAll(
+    @Request() req: RequestType,
+    @Query() filter: FilterTaskDto,
+    @Query() pagination: PaginationQuery,
+  ): Promise<ResponseI<PaginationResponse<Task>>> {
+    const userId = req.user.id;
+    const [tasks, total] = await this.tasksService.findAll(
+      userId,
+      filter,
+      pagination,
+    );
+
+    return this.responseService.createResponse(
+      HttpStatus.OK,
+      'Tasks fetched successfully',
+      {
+        items: tasks,
+        pagination: {
+          total,
+          perPage: pagination.perPage,
+          currentPage: pagination.pageNumber,
+          numberOfPages: Math.ceil(total / pagination.perPage),
+        },
+      },
+    );
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<ResponseI<Task>> {
-    const task = await this.tasksService.findOne(id);
+  async findOne(
+    @Param('id') id: string,
+    @Request() req: RequestType,
+  ): Promise<ResponseI<Task>> {
+    const userId = req.user.id;
+    const task = await this.tasksService.findOne(id, userId);
 
     return this.responseService.createResponse(
       HttpStatus.OK,
@@ -59,12 +92,27 @@ export class TasksController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.tasksService.update(+id, updateTaskDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+    @Request() req: RequestType,
+  ): Promise<ResponseI<Task>> {
+    const userId = req.user.id;
+    const task = await this.tasksService.update(id, updateTaskDto, userId);
+    return this.responseService.createResponse(
+      HttpStatus.OK,
+      'Task updated successfully',
+      task,
+    );
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
-    await this.tasksService.remove(id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(
+    @Param('id') id: string,
+    @Request() req: RequestType,
+  ): Promise<void> {
+    const userId = req.user.id;
+    await this.tasksService.remove(id, userId);
   }
 }
