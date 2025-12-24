@@ -1,8 +1,15 @@
-import { PrimaryGeneratedColumn, Column, ManyToOne, Entity } from 'typeorm';
+import {
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  Entity,
+  Unique,
+} from 'typeorm';
 import { DateEntity } from './../../../common/entities/date.entity';
 import { Task } from './task.entity';
 
 @Entity('sub-tasks')
+@Unique(['name', 'taskId'])
 export class SubTask extends DateEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

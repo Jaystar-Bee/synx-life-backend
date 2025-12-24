@@ -16,13 +16,17 @@ import { join } from 'path';
 import { mailConfig } from './config/mail.config';
 import { GlobalModule } from './global/global.module';
 import { TasksModule } from './resources/tasks/tasks.module';
+import { HabitModule } from './resources/habit/habit.module';
+import { NotificationService } from './common/services/notification/notification.service';
+import { firebaseConfig } from './config/firebase.config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: configShema,
-      load: [databaseConfig, authConfig, appConfig, mailConfig],
+      load: [databaseConfig, authConfig, appConfig, mailConfig, firebaseConfig],
       validationOptions: {
         abortEarly: true,
       },
@@ -63,11 +67,13 @@ import { TasksModule } from './resources/tasks/tasks.module';
         },
       }),
     }),
+    ScheduleModule.forRoot(),
     AuthModule,
     GlobalModule,
     TasksModule,
+    HabitModule,
   ],
   controllers: [AppController],
-  providers: [AppService, HashService],
+  providers: [AppService, HashService, NotificationService],
 })
 export class AppModule {}

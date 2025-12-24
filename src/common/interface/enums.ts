@@ -1,0 +1,4 @@
+export enum NotificationType {
+  HABIT_REMINDER = 'HABIT_REMINDER',
+  HABIT_REMINDER_BULK = 'HABIT_REMINDER_BULK',
+}

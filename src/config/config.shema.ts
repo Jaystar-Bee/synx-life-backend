@@ -19,4 +19,7 @@ export default joi.object({
   MAIL_USER: joi.string().required(),
   MAIL_PASSWORD: joi.string().required(),
   MAIL_SECURE: joi.number().valid(0, 1).optional(),
+  FIREBASE_PROJECT_ID: joi.string().required(),
+  FIREBASE_CLIENT_EMAIL: joi.string().required(),
+  FIREBASE_PRIVATE_KEY: joi.string().required(),
 });

@@ -23,7 +23,7 @@ export class TasksService {
   public async create(createTaskDto: CreateTaskDto): Promise<Task> {
     await this.validateUser(createTaskDto['userId'] as string);
     const newDate = createTaskDto['date'] || new Date();
-    createTaskDto['date'] = newDate;
+    createTaskDto['date'] = moment(newDate)?.format('YYYY-MM-DD');
     const task = this.taskRepository.create(createTaskDto);
     return await this.taskRepository.save(task);
   }
@@ -84,7 +84,7 @@ export class TasksService {
   public async findOne(id: string, userId: string) {
     await this.validateUser(userId);
     const task = await this.taskRepository.findOne({
-      where: { id },
+      where: { id, userId },
       relations: ['labels', 'subTasks'],
     });
     if (!task) {
@@ -114,7 +114,7 @@ export class TasksService {
   }
 
   public async remove(id: string, userId: string): Promise<void> {
-    const task = await this.taskRepository.findOneBy({ id });
+    const task = await this.taskRepository.findOne({ where: { id, userId } });
     if (!task) {
       throw new NotFoundException('Task not found');
     }

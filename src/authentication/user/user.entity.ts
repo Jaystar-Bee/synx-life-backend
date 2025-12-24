@@ -2,6 +2,7 @@ import { DateEntity } from 'src/common/entities/date.entity';
 import { Exclude } from 'class-transformer';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Task } from './../../resources/tasks/entities/task.entity';
+import { Habit } from './../../resources/habit/entities/habit.entity';
 
 @Entity('users')
 export class User extends DateEntity {
@@ -54,6 +55,16 @@ export class User extends DateEntity {
   @Exclude()
   password?: string;
 
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  // @Exclude()
+  fcmToken: string;
+
   @OneToMany(() => Task, (task) => task.user)
   tasks: Task[];
+
+  @OneToMany(() => Habit, (habit) => habit.user)
+  habits: Habit[];
 }

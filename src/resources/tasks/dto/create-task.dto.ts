@@ -36,7 +36,7 @@ export class CreateTaskDto {
 
   @IsOptional()
   @IsDateString()
-  date?: Date;
+  date?: string;
 
   @IsOptional()
   @ValidateNested({ each: true })

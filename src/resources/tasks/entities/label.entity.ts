@@ -1,8 +1,15 @@
-import { ManyToOne, PrimaryGeneratedColumn, Column, Entity } from 'typeorm';
+import {
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Column,
+  Entity,
+  Unique,
+} from 'typeorm';
 import { DateEntity } from './../../../common/entities/date.entity';
 import { Task } from './task.entity';
 
 @Entity('labels')
+@Unique(['name', 'taskId'])
 export class Label extends DateEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
