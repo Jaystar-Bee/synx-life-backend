@@ -31,8 +31,15 @@ export class Habit extends DateEntity {
   frequency: HabitFrequency;
 
   @Column({
-    type: 'simple-array',
+    type: 'text',
     nullable: true,
+  })
+  description: string;
+
+  @Column({
+    type: 'int',
+    nullable: true,
+    array: true,
   })
   customDays: number[];
 

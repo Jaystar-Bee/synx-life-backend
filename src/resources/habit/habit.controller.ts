@@ -23,6 +23,7 @@ import { ResponseService } from './../../common/services/response.service';
 import { PaginationResponse } from './../../common/interface/pagination.response';
 import { PaginationQuery } from 'src/common/dtos/pagination.query';
 import { FilterHabitDto } from './dto/filter.dto';
+import { HabitI } from './habit.model';
 
 @Controller('habits')
 @UseGuards(AuthGuard)
@@ -53,7 +54,7 @@ export class HabitController {
     @Query() filter: FilterHabitDto,
     @Query() pagination: PaginationQuery,
     @Request() req: RequestType,
-  ): Promise<ResponseI<PaginationResponse<Habit>>> {
+  ): Promise<ResponseI<PaginationResponse<HabitI>>> {
     const userId = req.user.id;
     const [habits, total] = await this.habitService.findAll(
       filter,
@@ -80,7 +81,7 @@ export class HabitController {
   async findOne(
     @Param('id') id: string,
     @Request() req: RequestType,
-  ): Promise<ResponseI<Habit>> {
+  ): Promise<ResponseI<HabitI>> {
     const userId = req.user.id;
     const habit = await this.habitService.findOne(id, userId);
 
@@ -103,6 +104,21 @@ export class HabitController {
     return this.responseService.createResponse(
       HttpStatus.OK,
       'Habit updated successfully',
+      habit,
+    );
+  }
+
+  @Post(':id/complete')
+  async markHabitComplete(
+    @Param('id') id: string,
+    @Request() req: RequestType,
+  ): Promise<ResponseI<HabitI>> {
+    const userId = req.user.id;
+    const habit = await this.habitService.markHabitComplete(id, userId);
+
+    return this.responseService.createResponse(
+      HttpStatus.OK,
+      'Habit marked as complete successfully',
       habit,
     );
   }

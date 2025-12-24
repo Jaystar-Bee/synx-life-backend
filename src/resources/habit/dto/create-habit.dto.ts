@@ -17,6 +17,10 @@ export class CreateHabitDto {
   @IsString()
   name: string;
 
+  @IsOptional()
+  @IsString()
+  description: string;
+
   @IsNotEmpty()
   @IsEnum(HabitFrequency)
   frequency: HabitFrequency;
@@ -36,7 +40,7 @@ export class CreateHabitDto {
   })
   reminderTime: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsUUID()
   userId?: string;
 }

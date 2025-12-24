@@ -38,7 +38,6 @@ export class TasksController {
     @Request() req: RequestType,
   ): Promise<ResponseI<Task>> {
     const userId = req.user.id;
-    console.log('User ID from request:', userId);
     createTaskDto['userId'] = userId;
     const task = await this.tasksService.create(createTaskDto);
     return this.responseService.createResponse(
