@@ -46,7 +46,7 @@ export class User extends DateEntity {
     nullable: true,
   })
   @Exclude()
-  refreshToken: string | null;
+  refreshToken?: string | null;
 
   @Column({
     type: 'varchar',
@@ -56,11 +56,17 @@ export class User extends DateEntity {
   password?: string;
 
   @Column({
+    type: 'boolean',
+    default: true,
+  })
+  showNotification: boolean;
+
+  @Column({
     type: 'varchar',
     nullable: true,
   })
   // @Exclude()
-  fcmToken: string;
+  fcmToken?: string;
 
   @OneToMany(() => Task, (task) => task.user)
   tasks: Task[];

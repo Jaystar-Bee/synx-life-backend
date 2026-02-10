@@ -14,7 +14,7 @@ export class FilterTaskDto {
 
   @IsOptional()
   @IsDateString()
-  date?: Date;
+  date?: string;
 
   @IsOptional()
   @IsBoolean()

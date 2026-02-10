@@ -20,6 +20,7 @@ import { HabitModule } from './resources/habit/habit.module';
 import { NotificationService } from './common/services/notification/notification.service';
 import { firebaseConfig } from './config/firebase.config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { MeModule } from './resources/me/me.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     GlobalModule,
     TasksModule,
     HabitModule,
+    MeModule,
   ],
   controllers: [AppController],
   providers: [AppService, HashService, NotificationService],

@@ -11,14 +11,17 @@ import {
 } from 'class-validator';
 import { HabitFrequency } from '../habit.model';
 import { Type } from 'class-transformer';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 
 export class CreateHabitDto {
   @IsNotEmpty()
   @IsString()
+  @ApiProperty()
   name: string;
 
   @IsOptional()
   @IsString()
+  @ApiProperty()
   description: string;
 
   @IsNotEmpty()
@@ -30,6 +33,7 @@ export class CreateHabitDto {
   @Type(() => Number)
   @Min(0, { each: true }) // 0 = Sunday
   @Max(6, { each: true })
+  @ApiProperty()
   customDays: number[];
 
   @IsOptional()
@@ -38,9 +42,11 @@ export class CreateHabitDto {
     message:
       'reminderTime must be in HH:mm format with leading zeros (e.g., 08:30)',
   })
+  @ApiProperty()
   reminderTime: string;
 
   @IsOptional()
   @IsUUID()
+  @ApiHideProperty()
   userId?: string;
 }

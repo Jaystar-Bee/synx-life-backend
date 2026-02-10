@@ -23,7 +23,9 @@ import { ResponseService } from './../../common/services/response.service';
 import { FilterTaskDto } from './dto/filter.dto';
 import { PaginationQuery } from './../../common/dtos/pagination.query';
 import { PaginationResponse } from 'src/common/interface/pagination.response';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('tasks')
 export class TasksController {

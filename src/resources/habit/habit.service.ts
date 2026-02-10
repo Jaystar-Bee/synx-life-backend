@@ -56,9 +56,10 @@ export class HabitService {
   }
 
   async findAll(
-    filter: FilterHabitDto,
-    pagination: PaginationQuery,
     userId: string,
+    filter: FilterHabitDto,
+    pagination?: PaginationQuery,
+    allCompletions?: boolean,
   ): Promise<[HabitI[], number]> {
     await this.validateUser(userId);
 
@@ -67,12 +68,17 @@ export class HabitService {
     const today = moment().format('YYYY-MM-DD');
 
     const query = this.habitRepository.createQueryBuilder('habit');
-    query.leftJoinAndSelect(
-      'habit.completions',
-      'completions',
-      'completions.completedAt BETWEEN :start AND :end',
-      { start: startOfMonth, end: endOfMonth },
-    );
+
+    if (allCompletions) {
+      query.leftJoinAndSelect('habit.completions', 'completions');
+    } else {
+      query.leftJoinAndSelect(
+        'habit.completions',
+        'completions',
+        'completions.completedAt BETWEEN :start AND :end',
+        { start: startOfMonth, end: endOfMonth },
+      );
+    }
     query.where('habit.userId = :userId', { userId });
 
     if (filter.frequency) {
@@ -95,8 +101,11 @@ export class HabitService {
         date: days,
       });
     }
-    query.skip((pagination.pageNumber - 1) * pagination.perPage);
-    query.take(pagination.perPage);
+
+    if (pagination) {
+      query.skip((pagination.pageNumber - 1) * pagination.perPage);
+      query.take(pagination.perPage);
+    }
 
     const [habits, total] = await query.getManyAndCount();
     const newHabits = habits.map((habit) => {

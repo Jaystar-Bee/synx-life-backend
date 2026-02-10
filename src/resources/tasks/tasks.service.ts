@@ -31,7 +31,7 @@ export class TasksService {
   public async findAll(
     userId: string,
     filter: FilterTaskDto,
-    pagination: PaginationQuery,
+    pagination?: PaginationQuery,
   ): Promise<[Task[], number]> {
     await this.validateUser(userId);
     const query = this.taskRepository.createQueryBuilder('task');
@@ -72,8 +72,10 @@ export class TasksService {
     query.leftJoinAndSelect('task.labels', 'labels');
     query.leftJoinAndSelect('task.subTasks', 'subTasks');
 
-    query.skip((pagination.pageNumber - 1) * pagination.perPage);
-    query.take(pagination.perPage);
+    if (pagination) {
+      query.skip((pagination.pageNumber - 1) * pagination.perPage);
+      query.take(pagination.perPage);
+    }
 
     query.orderBy('task.createdAt', 'DESC');
 

@@ -1,4 +1,6 @@
+import { ApiHideProperty } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -32,11 +34,17 @@ export class CreateUserDto {
   })
   password: string;
 
+  @ApiHideProperty()
   @IsOptional()
   @IsString()
   otp?: string;
 
   @IsOptional()
   @IsString()
+  @ApiHideProperty()
   otpExpireTime?: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  showNotification?: boolean;
 }

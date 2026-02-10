@@ -24,7 +24,9 @@ import { PaginationResponse } from './../../common/interface/pagination.response
 import { PaginationQuery } from 'src/common/dtos/pagination.query';
 import { FilterHabitDto } from './dto/filter.dto';
 import { HabitI } from './habit.model';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('habits')
 @UseGuards(AuthGuard)
 export class HabitController {
@@ -57,9 +59,9 @@ export class HabitController {
   ): Promise<ResponseI<PaginationResponse<HabitI>>> {
     const userId = req.user.id;
     const [habits, total] = await this.habitService.findAll(
+      userId,
       filter,
       pagination,
-      userId,
     );
 
     return this.responseService.createResponse(

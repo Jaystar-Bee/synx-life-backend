@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { HashService } from '../hash/hash.service';
 import { UserService } from '../user/user.service';
@@ -167,7 +168,11 @@ export class AuthService {
       sendOtpDto?.email,
     );
     if (emailIsRegistered && isRegister) {
-      throw new ConflictException('Email is already registered');
+      throw new ConflictException({
+        message: 'Email is already registered',
+        code: 'EMAIL_ALREADY_EXISTS',
+        data: emailIsRegistered,
+      });
     }
     const otp = generateRandomNumbers(4);
     const otpExpireTime = moment
