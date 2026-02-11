@@ -182,6 +182,16 @@ export class MeService {
       passwordData.oldPassword,
       user?.password as string,
     );
+    const newPasswordIsSame = await this.hashService.confirmHash(
+      passwordData.newPassword,
+      user?.password as string,
+    );
+    if (newPasswordIsSame) {
+      throw new HttpException(
+        'New password is same as old password',
+        HttpStatus.CONFLICT,
+      );
+    }
     if (oldPasswordIsCorrect) {
       user.password = passwordData?.newPassword;
       return this.userService.update(user);

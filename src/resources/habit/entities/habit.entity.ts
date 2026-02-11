@@ -64,6 +64,7 @@ export class Habit extends DateEntity {
   @Column({
     type: 'varchar',
     nullable: false,
+    default: 'heart-outline',
   })
   icon: string;
 }
