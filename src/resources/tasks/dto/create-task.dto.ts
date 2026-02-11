@@ -14,6 +14,10 @@ import { CreateLabelDto } from './create-label.dto';
 import { CreateSubTaskDto } from './create-sub-task.dto';
 
 export class CreateTaskDto {
+  @IsOptional()
+  @IsString()
+  id?: string;
+
   @IsNotEmpty()
   @IsString()
   title: string;
@@ -47,4 +51,8 @@ export class CreateTaskDto {
   @ValidateNested({ each: true })
   @Type(() => CreateSubTaskDto)
   subTasks?: CreateSubTaskDto[];
+
+  @IsOptional()
+  @IsDateString()
+  updatedAt?: string;
 }

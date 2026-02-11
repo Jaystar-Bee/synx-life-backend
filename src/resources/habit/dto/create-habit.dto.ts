@@ -8,12 +8,17 @@ import {
   Max,
   IsOptional,
   Matches,
+  IsDateString,
 } from 'class-validator';
 import { HabitFrequency } from '../habit.model';
 import { Type } from 'class-transformer';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 
 export class CreateHabitDto {
+  @IsOptional()
+  @IsString()
+  id?: string;
+
   @IsNotEmpty()
   @IsString()
   @ApiProperty()
@@ -49,4 +54,13 @@ export class CreateHabitDto {
   @IsUUID()
   @ApiHideProperty()
   userId?: string;
+
+  @IsNotEmpty()
+  @IsString()
+  icon: string;
+
+  @IsOptional()
+  @ApiProperty()
+  @IsDateString()
+  updatedAt?: Date;
 }

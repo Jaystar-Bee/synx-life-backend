@@ -21,6 +21,9 @@ import { NotificationService } from './common/services/notification/notification
 import { firebaseConfig } from './config/firebase.config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MeModule } from './resources/me/me.module';
+import { SyncController } from './resources/sync/sync.controller';
+import { SyncModule } from './resources/sync/sync.module';
+import { ResponseService } from './common/services/response.service';
 
 @Module({
   imports: [
@@ -74,8 +77,9 @@ import { MeModule } from './resources/me/me.module';
     TasksModule,
     HabitModule,
     MeModule,
+    SyncModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, SyncController],
   providers: [AppService, HashService, NotificationService],
 })
 export class AppModule {}

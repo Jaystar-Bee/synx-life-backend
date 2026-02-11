@@ -60,4 +60,10 @@ export class Habit extends DateEntity {
 
   @OneToMany(() => HabitCompletion, (completion) => completion.habit)
   completions: HabitCompletion[];
+
+  @Column({
+    type: 'varchar',
+    nullable: false,
+  })
+  icon: string;
 }
